@@ -1,6 +1,6 @@
 import React from 'react';
 import { GithubOutlined, MenuFoldOutlined } from '@ant-design/icons';
-import BrandName from './BrandName';
+import BrandName from '../common/BrandName';
 
 export interface IHeaderProps {
   screenSize: any;
@@ -11,7 +11,7 @@ export default function Header(props: IHeaderProps) {
   return (
     <header className="fixed z-[999] h-16 w-screen bg-white drop-shadow flex justify-between items-center px-6 py-2">
       <div>
-        {props.screenSize?.width >= 990 ? (
+        {props.screenSize?.vw >= 990 ? (
           <BrandName />
         ) : (
           <div

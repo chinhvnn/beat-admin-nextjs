@@ -1,7 +1,7 @@
 import React from 'react';
 import { ShoppingOutlined } from '@ant-design/icons';
 import Link from 'next/link';
-import BrandName from './BrandName';
+import BrandName from '../common/BrandName';
 
 export interface ISidebarProps {
   screenSize: any;
@@ -10,7 +10,7 @@ export interface ISidebarProps {
 
 export default function Sidebar(props: ISidebarProps) {
   const renderSidebarClassName = (): string => {
-    if (props.screenSize?.width < 990) {
+    if (props.screenSize?.vw < 990) {
       let className = 'z-[1000] fixed h-screen mt-0 pt-0';
       if (props.showSidebar) {
         return className + ' w-52';
@@ -24,11 +24,11 @@ export default function Sidebar(props: ISidebarProps) {
   return (
     <aside
       className={`sidebar drop-shadow-md bg-white transition-all duration-300 overflow-hidden ${renderSidebarClassName()}`}
-      // hidden={props.screenSize?.width < 990 && !props.showSidebar}
+      // hidden={props.screenSize?.vw < 990 && !props.showSidebar}
     >
       <div
         className="h-16 px-5 py-2 border-b flex items-center"
-        hidden={props.screenSize?.width >= 990}
+        hidden={props.screenSize?.vw >= 990}
       >
         <BrandName />
       </div>
