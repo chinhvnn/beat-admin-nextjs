@@ -1,9 +1,36 @@
+import React, { useState } from 'react';
+import Link from 'next/link';
+import Router from 'next/router';
+import { useQuery, useMutation } from 'react-query';
 import BrandName from '@/components/common/BrandName';
-import React from 'react';
+import { login } from '@/services/AuthService';
+import { TOKEN_KEY } from '@/utils/axios';
 
 export interface ILoginPageProps {}
 
 export default function LoginPage(props: ILoginPageProps) {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  const mutation = useMutation(login, {
+    onSuccess: (data) => {
+      console.log('111 succscscs', data);
+    },
+  });
+
+  const onSubmitSignIn = async (e: any) => {
+    e.preventDefault();
+    mutation.mutate({ email, password });
+    // const result = await login(email, password);
+
+    // if (result?.status === 200) {
+    //   localStorage.setItem(TOKEN_KEY, result?.data?.accessToken || '');
+    //   Router.push('orders');
+    // } else {
+    // }
+  };
+
   return (
     <section className="bg-gray-50 dark:bg-gray-900">
       <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto md:h-screen lg:py-0">
@@ -29,6 +56,8 @@ export default function LoginPage(props: ILoginPageProps) {
                   id="email"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   placeholder="name@company.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div>
@@ -44,6 +73,8 @@ export default function LoginPage(props: ILoginPageProps) {
                   id="password"
                   placeholder="••••••••"
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -62,27 +93,27 @@ export default function LoginPage(props: ILoginPageProps) {
                     </label>
                   </div>
                 </div>
-                <a
-                  href="#"
+                <Link
+                  href="/orders"
                   className="text-sm font-medium text-primary-600 hover:underline dark:text-primary-500"
                 >
                   Forgot password?
-                </a>
+                </Link>
               </div>
               <button
-                type="submit"
                 className="w-full text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+                onClick={(e) => onSubmitSignIn(e)}
               >
                 Sign in
               </button>
               <p className="text-sm font-light text-gray-500 dark:text-gray-400">
                 Don’t have an account yet?{' '}
-                <a
-                  href="#"
+                <Link
+                  href="orders"
                   className="font-medium text-primary-600 hover:underline dark:text-primary-500"
                 >
                   Sign up
-                </a>
+                </Link>
               </p>
             </form>
           </div>
