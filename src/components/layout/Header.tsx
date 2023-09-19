@@ -1,10 +1,11 @@
 import React from 'react';
-import { GithubOutlined, MenuFoldOutlined } from '@ant-design/icons';
+import { CaretDownFilled, GithubOutlined, MenuFoldOutlined } from '@ant-design/icons';
 import BrandName from '../common/BrandName';
 
 export interface IHeaderProps {
   screenSize: any;
-  toggleMenu: any;
+  toggleMenu: () => void;
+  onLogout: () => void;
 }
 
 export default function Header(props: IHeaderProps) {
@@ -24,10 +25,25 @@ export default function Header(props: IHeaderProps) {
       </div>
       <div className="information-header">
         <div className="information-header__country"></div>
-        <div className="information-header__user flex items-center">
-          <div className="name pr-2">User</div>
-          <div className="icon flex">
-            <GithubOutlined />
+        <div id="user-dropdownbtn" className="information-header__user relative items-center">
+          <div className="flex hover:cursor-pointer">
+            <div className="name pr-2 items-center">User</div>
+            <div className="user-icon flex items-center">
+              <GithubOutlined />
+            </div>
+            <div className="flex items-center">
+              <CaretDownFilled />
+            </div>
+          </div>
+          <div id="user-dropdown" className="absolute hidden pt-1 right-0">
+            <div className="bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+              <div
+                className="px-5 py-2 hover:bg-gray-300 cursor-pointer rounded-lg"
+                onClick={props.onLogout}
+              >
+                Logout
+              </div>
+            </div>
           </div>
         </div>
       </div>

@@ -1,27 +1,69 @@
 import React, { useEffect, useState } from 'react';
-import { QueryClient, useQueryClient, useQuery } from 'react-query';
+import Router from 'next/router';
+import { useRouter } from 'next/router';
+import { QueryClient, useQueryClient, useQuery, useMutation } from 'react-query';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import ContentWrapper from './ContentWrapper';
 import useViewport from '@/hooks/useViewport';
-import { redirect } from 'next/navigation';
 import LoginPage from '@/pages/login';
+import { getAuthUser } from '@/services/AuthService';
 
 export interface IAdminLayoutProps {
-  children: any;
+  children: React.ReactNode;
 }
 
 export default function AdminLayout(props: IAdminLayoutProps) {
   const queryClient = useQueryClient();
+  const router = useRouter();
   const { vw, vh } = useViewport() as any;
   const [showSidebar, setShowSidebar] = useState(vw >= 990);
+  const [user, setUser] = useState<any>();
+  const [isLoadingAuth, setIsLoadingAuth] = useState<boolean>(true);
 
-  const toggleMenu = () => {
+  const { isError, error, mutate } = useMutation(getAuthUser, {
+    onMutate(variables) {
+      setIsLoadingAuth(true);
+    },
+    onSuccess(data, variables, context) {
+      setIsLoadingAuth(false);
+      if (data.status === 200) {
+        setUser(data.data);
+      } else {
+        onLogout();
+      }
+    },
+  });
+
+  useEffect(() => {}, []);
+
+  useEffect(() => {
+    console.log('111 muate useEffect', router.asPath, user?.id);
+    if (router.asPath === '/login') {
+      setIsLoadingAuth(false);
+      if (user?.id) {
+        router.push('/orders');
+      }
+      return;
+    }
+
+    mutate();
+  }, [router.asPath]);
+
+  const toggleMenu = (): void => {
     setShowSidebar(!showSidebar);
   };
-  if (!'user' || !'authenticated') {
-    return <LoginPage />;
-  } else {
+
+  const onLogout = (): void => {
+    setUser({});
+    localStorage.clear();
+    Router.push('login');
+  };
+
+  if (isLoadingAuth) {
+    return <div>...LOADING</div>;
+  }
+  if (!isLoadingAuth && user?.id) {
     return (
       <div className="root-wrapper min-h-screen flex">
         <div
@@ -29,10 +71,12 @@ export default function AdminLayout(props: IAdminLayoutProps) {
           hidden={vw >= 990 || !showSidebar}
           onClick={() => toggleMenu()}
         ></div>
-        <Header screenSize={{ vw, vh }} toggleMenu={toggleMenu} />
+        <Header screenSize={{ vw, vh }} toggleMenu={toggleMenu} onLogout={onLogout} />
         <Sidebar screenSize={{ vw, vh }} showSidebar={showSidebar} />
         <ContentWrapper>{props.children}</ContentWrapper>
       </div>
     );
+  } else {
+    return <LoginPage />;
   }
 }

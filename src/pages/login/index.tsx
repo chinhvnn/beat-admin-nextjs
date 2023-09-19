@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Router from 'next/router';
-import { useQuery, useMutation } from 'react-query';
+import { useMutation } from 'react-query';
 import BrandName from '@/components/common/BrandName';
 import { login } from '@/services/AuthService';
 import { TOKEN_KEY } from '@/utils/axios';
@@ -11,24 +11,19 @@ export interface ILoginPageProps {}
 export default function LoginPage(props: ILoginPageProps) {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const [isLoading, setIsLoading] = useState(false);
 
-  const mutation = useMutation(login, {
-    onSuccess: (data) => {
-      console.log('111 succscscs', data);
+  const { isLoading, mutate } = useMutation(login, {
+    onSuccess: (result) => {
+      if (result?.status === 200) {
+        localStorage.setItem(TOKEN_KEY, result?.data?.accessToken || '');
+        Router.push('/orders');
+      }
     },
   });
 
   const onSubmitSignIn = async (e: any) => {
     e.preventDefault();
-    mutation.mutate({ email, password });
-    // const result = await login(email, password);
-
-    // if (result?.status === 200) {
-    //   localStorage.setItem(TOKEN_KEY, result?.data?.accessToken || '');
-    //   Router.push('orders');
-    // } else {
-    // }
+    mutate({ email, password });
   };
 
   return (
@@ -58,6 +53,7 @@ export default function LoginPage(props: ILoginPageProps) {
                   placeholder="name@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               <div>
@@ -75,6 +71,7 @@ export default function LoginPage(props: ILoginPageProps) {
                   className="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  disabled={isLoading}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -103,6 +100,7 @@ export default function LoginPage(props: ILoginPageProps) {
               <button
                 className="w-full text-white bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
                 onClick={(e) => onSubmitSignIn(e)}
+                disabled={isLoading}
               >
                 Sign in
               </button>
