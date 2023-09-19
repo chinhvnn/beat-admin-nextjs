@@ -25,3 +25,7 @@ body {
 [hidden] {
   display: none !important;
 }
+
+#user-dropdownbtn:hover #user-dropdown {
+  display: block;
+}

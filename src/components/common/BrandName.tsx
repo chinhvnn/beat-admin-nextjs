@@ -21,7 +21,7 @@ export default function BrandName(props: IBrandNameProps) {
           fill="currentColor"
         ></path>
       </svg>
-      <span className="font-bold pl-2">Beatway</span>
+      <span className="font-bold pl-2">Test Admin</span>
     </div>
   );
 }
