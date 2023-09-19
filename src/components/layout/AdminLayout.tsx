@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import Router from 'next/router';
 import { useRouter } from 'next/router';
 import { QueryClient, useQueryClient, useQuery, useMutation } from 'react-query';
 import Header from './Header';
@@ -8,6 +7,8 @@ import ContentWrapper from './ContentWrapper';
 import useViewport from '@/hooks/useViewport';
 import LoginPage from '@/pages/login';
 import { getAuthUser } from '@/services/AuthService';
+import { IScreenSize } from '@/types/UI';
+import { APP_ROUTES } from '@/constant/APP_ROUTES';
 
 export interface IAdminLayoutProps {
   children: React.ReactNode;
@@ -16,9 +17,9 @@ export interface IAdminLayoutProps {
 export default function AdminLayout(props: IAdminLayoutProps) {
   const queryClient = useQueryClient();
   const router = useRouter();
-  const { vw, vh } = useViewport() as any;
+  const { vw, vh } = useViewport() as IScreenSize;
   const [showSidebar, setShowSidebar] = useState(vw >= 990);
-  const [user, setUser] = useState<any>();
+  const [authUser, setAuthUser] = useState<any>();
   const [isLoadingAuth, setIsLoadingAuth] = useState<boolean>(true);
 
   const { isError, error, mutate } = useMutation(getAuthUser, {
@@ -26,44 +27,39 @@ export default function AdminLayout(props: IAdminLayoutProps) {
       setIsLoadingAuth(true);
     },
     onSuccess(data, variables, context) {
-      setIsLoadingAuth(false);
       if (data.status === 200) {
-        setUser(data.data);
+        setAuthUser(data.data);
       } else {
         onLogout();
       }
+
+      setIsLoadingAuth(false);
     },
   });
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
-    console.log('111 muate useEffect', router.asPath, user?.id);
     if (router.asPath === '/login') {
       setIsLoadingAuth(false);
-      if (user?.id) {
-        router.push('/orders');
-      }
       return;
     }
 
     mutate();
-  }, [router.asPath]);
+  }, [router]);
 
   const toggleMenu = (): void => {
     setShowSidebar(!showSidebar);
   };
 
   const onLogout = (): void => {
-    setUser({});
+    setAuthUser({});
     localStorage.clear();
-    Router.push('login');
+    router.push(APP_ROUTES.LOGIN);
   };
 
   if (isLoadingAuth) {
-    return <div>...LOADING</div>;
+    return <div className="loading-page">...LOADING</div>;
   }
-  if (!isLoadingAuth && user?.id) {
+  if (!isLoadingAuth && authUser?.id) {
     return (
       <div className="root-wrapper min-h-screen flex">
         <div
@@ -77,6 +73,6 @@ export default function AdminLayout(props: IAdminLayoutProps) {
       </div>
     );
   } else {
-    return <LoginPage />;
+    return <LoginPage authUser={authUser} />;
   }
 }

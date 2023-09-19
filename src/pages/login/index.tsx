@@ -5,8 +5,11 @@ import { useMutation } from 'react-query';
 import BrandName from '@/components/common/BrandName';
 import { login } from '@/services/AuthService';
 import { TOKEN_KEY } from '@/utils/axios';
+import { APP_ROUTES } from '@/constant/APP_ROUTES';
 
-export interface ILoginPageProps {}
+export interface ILoginPageProps {
+  authUser: any;
+}
 
 export default function LoginPage(props: ILoginPageProps) {
   const [email, setEmail] = useState<string>('');
