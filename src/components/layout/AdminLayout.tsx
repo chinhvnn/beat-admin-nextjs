@@ -9,6 +9,7 @@ import LoginPage from '@/pages/login';
 import { getAuthUser } from '@/services/AuthService';
 import { IScreenSize } from '@/types/UI';
 import { APP_ROUTES } from '@/constant/APP_ROUTES';
+import { LoadingOutlined } from '@ant-design/icons';
 
 export interface IAdminLayoutProps {
   children: React.ReactNode;
@@ -22,7 +23,11 @@ export default function AdminLayout(props: IAdminLayoutProps) {
   const [authUser, setAuthUser] = useState<any>();
   const [isLoadingAuth, setIsLoadingAuth] = useState<boolean>(true);
 
-  const { isError, error, mutate } = useMutation(getAuthUser, {
+  const {
+    isError,
+    error,
+    mutate: authMutate,
+  } = useMutation(getAuthUser, {
     onMutate(variables) {
       setIsLoadingAuth(true);
     },
@@ -43,21 +48,26 @@ export default function AdminLayout(props: IAdminLayoutProps) {
       return;
     }
 
-    mutate();
-  }, [router]);
+    authMutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const toggleMenu = (): void => {
     setShowSidebar(!showSidebar);
   };
 
   const onLogout = (): void => {
+    router.push(APP_ROUTES.LOGIN);
     setAuthUser({});
     localStorage.clear();
-    router.push(APP_ROUTES.LOGIN);
   };
 
   if (isLoadingAuth) {
-    return <div className="loading-page">...LOADING</div>;
+    return (
+      <div className="loading-page">
+        <LoadingOutlined />
+      </div>
+    );
   }
   if (!isLoadingAuth && authUser?.id) {
     return (
@@ -67,12 +77,23 @@ export default function AdminLayout(props: IAdminLayoutProps) {
           hidden={vw >= 990 || !showSidebar}
           onClick={() => toggleMenu()}
         ></div>
-        <Header screenSize={{ vw, vh }} toggleMenu={toggleMenu} onLogout={onLogout} />
-        <Sidebar screenSize={{ vw, vh }} showSidebar={showSidebar} />
+        <Header
+          authUser={authUser}
+          screenSize={{ vw, vh }}
+          toggleMenu={toggleMenu}
+          onLogout={onLogout}
+        />
+        <Sidebar
+          screenSize={{ vw, vh }}
+          showSidebar={showSidebar}
+          setShowSidebar={setShowSidebar}
+        />
         <ContentWrapper>{props.children}</ContentWrapper>
       </div>
     );
   } else {
-    return <LoginPage authUser={authUser} />;
+    return (
+      <LoginPage setIsLoadingAuth={setIsLoadingAuth} authUser={authUser} authMutate={authMutate} />
+    );
   }
 }
